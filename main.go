@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/bootdotdev/courses/learn-web-servers/create_read/internal/database"
-	"github.com/go-chi/chi"
+	"github.com/Zaul594/Chirspy-project/internal/database"
+	"github.com/go-chi/chi/v5"
 )
 
 type apiConfig struct {
@@ -16,6 +16,11 @@ type apiConfig struct {
 func main() {
 	const port = "8080"
 	const filepathRoot = "."
+
+	db, err := database.NewDB("database.json")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	apiCfg := apiConfig{
 		fileserverHits: 0,
@@ -36,8 +41,8 @@ func main() {
 	ar.Get("/metrics", apiCfg.metrHandler)
 	ar.HandleFunc("/reset", apiCfg.resetHandler)
 	ar.Post("/chirps", apiCfg.chirpCreateHandler)
-	ar.Get("chirps", apiCfg.chirpCreateHandler)
-	r.Mount("/api", apiCfg.chirpGetHandaler)
+	ar.Get("/chirps", apiCfg.chirpGetHandaler)
+	r.Mount("/api", ar)
 
 	corsMux := middlewareCors(r)
 

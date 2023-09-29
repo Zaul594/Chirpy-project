@@ -7,6 +7,11 @@ import (
 	"sort"
 )
 
+type Chirp struct {
+	ID   int    `json:"id"`
+	Body string `json:"body"`
+}
+
 func readyHanler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Context-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(200)
@@ -64,7 +69,7 @@ func (cfg *apiConfig) chirpCreateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	chirp, err := cfg.DB.CreateChirp(cleaned)
+	chirp, err := cfg.DB.CreateChirps(cleaned)
 	if err != nil {
 		respWithErr(w, http.StatusInternalServerError, "Couldn't create chirp")
 		return
@@ -78,7 +83,7 @@ func (cfg *apiConfig) chirpCreateHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) chirpGetHandaler(w http.ResponseWriter, r *http.Request) {
-	dbChirps, err := cfg.DB.GetCherps()
+	dbChirps, err := cfg.DB.GetChirps()
 	if err != nil {
 		respWithErr(w, http.StatusInternalServerError, "Could Couldn't retrieve chirps")
 		return

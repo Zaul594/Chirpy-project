@@ -31,7 +31,7 @@ func NewDB(path string) (*DB, error) {
 	return db, err
 }
 
-func (db *DB) CreateCherp(body string) (Chirp, error) {
+func (db *DB) CreateChirps(body string) (Chirp, error) {
 	dbStructure, err := db.loadDB()
 
 	if err != nil {
