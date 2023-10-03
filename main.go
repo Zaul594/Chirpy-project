@@ -42,6 +42,10 @@ func main() {
 	ar.HandleFunc("/reset", apiCfg.resetHandler)
 	ar.Post("/chirps", apiCfg.chirpCreateHandler)
 	ar.Get("/chirps", apiCfg.chirpGetHandaler)
+	ar.Get("/chirps/{chirpID}", apiCfg.GetOneChirpHandler)
+
+	ar.Post("/users", apiCfg.createUserHandler)
+
 	r.Mount("/api", ar)
 
 	corsMux := middlewareCors(r)
