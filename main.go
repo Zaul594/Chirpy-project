@@ -14,6 +14,7 @@ type apiConfig struct {
 }
 
 func main() {
+
 	const port = "8080"
 	const filepathRoot = "."
 
@@ -44,6 +45,7 @@ func main() {
 	ar.Get("/chirps", apiCfg.chirpGetHandaler)
 	ar.Get("/chirps/{chirpID}", apiCfg.GetOneChirpHandler)
 
+	ar.Post("/login", apiCfg.handlerLogin)
 	ar.Post("/users", apiCfg.createUserHandler)
 
 	r.Mount("/api", ar)
