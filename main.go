@@ -1,31 +1,51 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Zaul594/Chirspy-project/internal/database"
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 )
 
 type apiConfig struct {
 	fileserverHits int
 	DB             *database.DB
+	jwtSecret      string
 }
 
 func main() {
+	godotenv.Load(".env")
 
 	const port = "8080"
 	const filepathRoot = "."
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET environment variable is not set")
+	}
 
 	db, err := database.NewDB("database.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	dbg := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parsed()
+	if dbg != nil && *dbg {
+		err := db.ResetDB()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	apiCfg := apiConfig{
 		fileserverHits: 0,
 		DB:             db,
+		jwtSecret:      jwtSecret,
 	}
 
 	r := chi.NewRouter()
@@ -40,13 +60,15 @@ func main() {
 	ar := chi.NewRouter()
 	ar.Get("/healthz", readyHanler)
 	ar.Get("/metrics", apiCfg.metrHandler)
-	ar.HandleFunc("/reset", apiCfg.resetHandler)
+	ar.Get("/reset", apiCfg.resetHandler)
+
 	ar.Post("/chirps", apiCfg.chirpCreateHandler)
 	ar.Get("/chirps", apiCfg.chirpGetHandaler)
 	ar.Get("/chirps/{chirpID}", apiCfg.GetOneChirpHandler)
 
 	ar.Post("/login", apiCfg.handlerLogin)
 	ar.Post("/users", apiCfg.createUserHandler)
+	ar.Put("/users", apiCfg.userUpdateHandler)
 
 	r.Mount("/api", ar)
 
