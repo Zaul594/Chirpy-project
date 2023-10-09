@@ -11,9 +11,8 @@ import (
 func (cfg *apiConfig) userUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Password string `json:"password"`
-		Email    string `json:"Email"`
+		Email    string `json:"email"`
 	}
-
 	type response struct {
 		Users
 	}
@@ -23,7 +22,6 @@ func (cfg *apiConfig) userUpdateHandler(w http.ResponseWriter, r *http.Request) 
 		respWithErr(w, http.StatusUnauthorized, "Couldn't find JWT")
 		return
 	}
-
 	subject, err := auth.ValidateJWT(token, cfg.jwtSecret)
 	if err != nil {
 		respWithErr(w, http.StatusUnauthorized, "Couldn't validate JWT")
@@ -33,7 +31,6 @@ func (cfg *apiConfig) userUpdateHandler(w http.ResponseWriter, r *http.Request) 
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err = decoder.Decode(&params)
-
 	if err != nil {
 		respWithErr(w, http.StatusInternalServerError, "Couldn't decode parameters")
 		return
@@ -54,6 +51,7 @@ func (cfg *apiConfig) userUpdateHandler(w http.ResponseWriter, r *http.Request) 
 	user, err := cfg.DB.UpdateUser(userIDInt, params.Email, hashedPassword)
 	if err != nil {
 		respWithErr(w, http.StatusInternalServerError, "Couldn't create user")
+		return
 	}
 
 	respJson(w, http.StatusOK, response{

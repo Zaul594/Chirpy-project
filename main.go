@@ -65,11 +65,14 @@ func main() {
 	ar.Post("/chirps", apiCfg.chirpCreateHandler)
 	ar.Get("/chirps", apiCfg.chirpGetHandaler)
 	ar.Get("/chirps/{chirpID}", apiCfg.GetOneChirpHandler)
+	ar.Delete("/chirps/{chirpID}", apiCfg.deleteChirpyHandler)
 
 	ar.Post("/login", apiCfg.handlerLogin)
 	ar.Post("/users", apiCfg.createUserHandler)
 	ar.Put("/users", apiCfg.userUpdateHandler)
 
+	ar.Post("/refresh", apiCfg.handlerRefresh)
+	ar.Post("/revoke", apiCfg.handlerRevoke)
 	r.Mount("/api", ar)
 
 	corsMux := middlewareCors(r)

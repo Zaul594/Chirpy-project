@@ -20,7 +20,6 @@ func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) 
 		Password string `json:"password"`
 		Email    string `json:"email"`
 	}
-
 	type response struct {
 		Users
 	}
