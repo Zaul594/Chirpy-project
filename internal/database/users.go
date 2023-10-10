@@ -6,6 +6,7 @@ type User struct {
 	ID             int    `json:"id"`
 	Email          string `json:"email"`
 	HashedPassword string `json:"hashed_password"`
+	Is_Chirpy_Red  bool   `json:"is_chirpy_red"`
 }
 
 var ErrNotExist = errors.New("resource does not exist")
@@ -21,10 +22,12 @@ func (db *DB) CreateUsers(email, hashedPassword string) (User, error) {
 	}
 
 	id := len(dbStructure.Users) + 1
+	is_chirpy_red := false
 	user := User{
 		ID:             id,
 		Email:          email,
 		HashedPassword: hashedPassword,
+		Is_Chirpy_Red:  is_chirpy_red,
 	}
 	dbStructure.Users[id] = user
 
@@ -78,6 +81,28 @@ func (db *DB) UpdateUser(id int, email, hashedPassword string) (User, error) {
 
 	user.Email = email
 	user.HashedPassword = hashedPassword
+	dbStructure.Users[id] = user
+
+	err = db.writeDB(dbStructure)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
+
+func (db *DB) UpgradeChirpyRed(id int) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	user, ok := dbStructure.Users[id]
+	if !ok {
+		return User{}, ErrNotExist
+	}
+
+	user.Is_Chirpy_Red = true
 	dbStructure.Users[id] = user
 
 	err = db.writeDB(dbStructure)

@@ -69,22 +69,53 @@ func (cfg *apiConfig) chirpCreateHandler(w http.ResponseWriter, r *http.Request)
 func (cfg *apiConfig) chirpGetHandaler(w http.ResponseWriter, r *http.Request) {
 	dbChirps, err := cfg.DB.GetChirps()
 	if err != nil {
-		respWithErr(w, http.StatusInternalServerError, "Could Couldn't retrieve chirps")
+		respWithErr(w, http.StatusInternalServerError, "Couldn't retrieve chirps")
 		return
 	}
 
+	s := r.URL.Query().Get("author_id")
+
 	chirps := []Chirp{}
-	for _, dbChirp := range dbChirps {
-		chirps = append(chirps, Chirp{
-			ID:        dbChirp.ID,
-			Author_ID: dbChirp.Author_ID,
-			Body:      dbChirp.Body,
-		})
+	if s == "" {
+		for _, dbChirp := range dbChirps {
+			chirps = append(chirps, Chirp{
+				ID:        dbChirp.ID,
+				Author_ID: dbChirp.Author_ID,
+				Body:      dbChirp.Body,
+			})
+		}
+	} else {
+		for _, dbChirp := range dbChirps {
+			ints, err := strconv.Atoi(s)
+			if err != nil {
+				respWithErr(w, http.StatusInternalServerError, "Invalid ID")
+			}
+			if dbChirp.Author_ID == ints {
+				chirps = append(chirps, Chirp{
+					ID:        dbChirp.ID,
+					Author_ID: dbChirp.Author_ID,
+					Body:      dbChirp.Body,
+				})
+			}
+
+		}
 	}
 
-	sort.Slice(chirps, func(i, j int) bool {
-		return chirps[i].ID < chirps[j].ID
-	})
+	s = r.URL.Query().Get("sort")
+
+	if s == "arc" {
+		sort.Slice(chirps, func(i, j int) bool {
+			return chirps[i].ID < chirps[j].ID
+		})
+	} else if s == "desc" {
+		sort.Slice(chirps, func(i, j int) bool {
+			return chirps[i].ID > chirps[j].ID
+		})
+	} else {
+		sort.Slice(chirps, func(i, j int) bool {
+			return chirps[i].ID < chirps[j].ID
+		})
+	}
 
 	respJson(w, 200, chirps)
 }
@@ -143,6 +174,7 @@ func (cfg *apiConfig) deleteChirpyHandler(w http.ResponseWriter, r *http.Request
 	}
 	if dbChirp.Author_ID != userID {
 		respWithErr(w, 403, "You can't delete this chirp")
+		return
 	}
 
 	err = cfg.DB.DeleteChirpy(chirpID)

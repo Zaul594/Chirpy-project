@@ -10,9 +10,10 @@ import (
 )
 
 type Users struct {
-	ID       int    `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
+	ID            int    `json:"id"`
+	Email         string `json:"email"`
+	Password      string `json:"-"`
+	Is_Chirpy_Red bool   `json:"is_chirpy_red"`
 }
 
 func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,8 +51,9 @@ func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) 
 
 	respJson(w, http.StatusCreated, response{
 		Users: Users{
-			ID:    user.ID,
-			Email: user.Email,
+			ID:            user.ID,
+			Email:         user.Email,
+			Is_Chirpy_Red: user.Is_Chirpy_Red,
 		},
 	})
 
